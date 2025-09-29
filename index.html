@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Universe Explorer - Multi-Scale Reality Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #universe-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #scale-indicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #scale-indicator h3 {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #scale-indicator #current-scale {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #scale-indicator #current-location {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        #info-overlay {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            width: 350px;
+            max-height: 70vh;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        #info-overlay h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .info-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .info-label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #search-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #search-input {
+            width: 300px;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: white;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        #search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 15px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-suggestion {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-suggestion:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .search-category {
+            font-size: 10px;
+            color: #667eea;
+            text-transform: uppercase;
+        }
+
+        .search-name {
+            font-size: 14px;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        #navigation-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(102, 126, 234, 0.4);
+            transform: scale(1.05);
+        }
+
+        #data-sources {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            max-width: 250px;
+            z-index: 100;
+        }
+
+        .data-source {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 11px;
+        }
+
+        .source-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .source-indicator.active {
+            background: #4CAF50;
+        }
+
+        .source-indicator.loading {
+            background: #FFC107;
+        }
+
+        .source-indicator.error {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 10000;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #coordinate-display {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        #minimap {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        .scale-marker {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.5);
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="universe-container"></div>
+
+    <div id="scale-indicator">
+        <h3>Current Scale</h3>
+        <div id="current-scale">Galaxy Cluster</div>
+        <div id="current-location">Observable Universe</div>
+    </div>
+
+    <div id="info-overlay">
+        <h2 id="object-name">Multi-Scale Universe</h2>
+        <div class="info-section">
+            <div class="info-label">Description</div>
+            <div class="info-value" id="object-description">
+                Navigate from galaxies to GPS coordinates. Click and scroll to explore.
+            </div>
+        </div>
+        <div class="info-section">
+            <div class="info-label">Current Data</div>
+            <div class="info-value" id="current-data">
+                Ready to fetch data...
+            </div>
+        </div>
+        <div class="info-section">
+            <div class="info-label">Available Actions</div>
+            <div class="info-value">
+                • Scroll to zoom in/out<br>
+                • Click to select objects<br>
+                • Search for any location<br>
+                • Auto-fetches relevant data
+            </div>
+        </div>
+    </div>
+
+    <div id="search-bar">
+        <input type="text" id="search-input" placeholder="Search galaxies, stars, planets, cities, GPS...">
+        <div id="search-suggestions"></div>
+    </div>
+
+    <div id="navigation-controls">
+        <button class="nav-btn" onclick="universeExplorer.zoomToScale('universe')">Universe</button>
+        <button class="nav-btn" onclick="universeExplorer.zoomToScale('galaxy')">Galaxy</button>
+        <button class="nav-btn" onclick="universeExplorer.zoomToScale('solar-system')">Solar System</button>
+        <button class="nav-btn" onclick="universeExplorer.zoomToScale('earth')">Earth</button>
+        <button class="nav-btn" onclick="universeExplorer.zoomToScale('city')">City</button>
+        <button class="nav-btn" onclick="universeExplorer.zoomToScale('street')">Street</button>
+    </div>
+
+    <div id="coordinate-display">
+        <span id="coords">Scale: 1.0 | Position: [0, 0, 0]</span>
+    </div>
+
+    <div id="data-sources">
+        <div style="font-size: 12px; margin-bottom: 10px; color: #667eea;">Live Data Sources</div>
+        <div class="data-source">
+            <div class="source-indicator active" id="nasa-status"></div>
+            <span>NASA APIs</span>
+        </div>
+        <div class="data-source">
+            <div class="source-indicator active" id="esa-status"></div>
+            <span>ESA Gaia</span>
+        </div>
+        <div class="data-source">
+            <div class="source-indicator active" id="wiki-status"></div>
+            <span>Wikipedia</span>
+        </div>
+        <div class="data-source">
+            <div class="source-indicator active" id="osm-status"></div>
+            <span>OpenStreetMap</span>
+        </div>
+        <div class="data-source">
+            <div class="source-indicator active" id="usgs-status"></div>
+            <span>USGS Earth</span>
+        </div>
+        <div class="data-source">
+            <div class="source-indicator active" id="simbad-status"></div>
+            <span>SIMBAD</span>
+        </div>
+        <div class="data-source">
+            <div class="source-indicator active" id="weather-status"></div>
+            <span>Weather Data</span>
+        </div>
+    </div>
+
+    <div id="loading-indicator">
+        <div class="loading-spinner"></div>
+        <div>Fetching data...</div>
+    </div>
+
+    <div id="minimap">
+        <canvas id="minimap-canvas" width="200" height="200"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // ==========================================
+        // INFINITE SCALE UNIVERSE EXPLORER
+        // ==========================================
+
+        class UniverseExplorer {
+            constructor() {
+                // Core Three.js components
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                
+                // Scale management
+                this.currentScale = 1e26; // Start at universe scale (meters)
+                this.scales = {
+                    universe: { scale: 1e26, name: 'Observable Universe', unit: 'billion light years' },
+                    supercluster: { scale: 1e24, name: 'Supercluster', unit: 'million light years' },
+                    galaxy_cluster: { scale: 1e22, name: 'Galaxy Cluster', unit: 'thousand light years' },
+                    galaxy: { scale: 1e21, name: 'Galaxy', unit: 'light years' },
+                    stellar_neighborhood: { scale: 1e17, name: 'Stellar Neighborhood', unit: 'AU' },
+                    solar_system: { scale: 1e13, name: 'Solar System', unit: 'million km' },
+                    planetary: { scale: 1e9, name: 'Planetary', unit: 'thousand km' },
+                    earth: { scale: 1e7, name: 'Earth', unit: 'km' },
+                    country: { scale: 1e6, name: 'Country', unit: 'km' },
+                    city: { scale: 1e4, name: 'City', unit: 'meters' },
+                    street: { scale: 1e2, name: 'Street', unit: 'meters' },
+                    building: { scale: 1e1, name: 'Building', unit: 'meters' },
+                    human: { scale: 1, name: 'Human Scale', unit: 'meters' }
+                };
+
+                // Data layers - dynamically loaded based on scale
+                this.dataLayers = new Map();
+                this.activeDataSources = new Set();
+                
+                // Object pools for different scales
+                this.objects = {
+                    galaxies: [],
+                    stars: [],
+                    planets: [],
+                    moons: [],
+                    asteroids: [],
+                    countries: [],
+                    cities: [],
+                    buildings: [],
+                    vehicles: []
+                };
+
+                // Current view state
+                this.viewState = {
+                    center: { x: 0, y: 0, z: 0 },
+                    scale: 'universe',
+                    target: null,
+                    loading: false
+                };
+
+                // Data source configurations
+                this.dataSources = {
+                    nasa: {
+                        base: 'https://api.nasa.gov',
+                        endpoints: {
+                            planets: '/planetary/apod',
+                            neo: '/neo/rest/v1/feed',
+                            mars: '/mars-photos/api/v1/rovers',
+                            earth: '/planetary/earth/imagery'
+                        }
+                    },
+                    esa: {
+                        base: 'https://gaia.esac.esa.int',
+                        endpoints: {
+                            stars: '/gaia-sl/gaia_source'
+                        }
+                    },
+                    wikipedia: {
+                        base: 'https://en.wikipedia.org/api/rest_v1',
+                        endpoints: {
+                            page: '/page/summary/',
+                            coordinates: '/page/coordinates/'
+                        }
+                    },
+                    openstreetmap: {
+                        base: 'https://nominatim.openstreetmap.org',
+                        endpoints: {
+                            search: '/search',
+                            reverse: '/reverse'
+                        }
+                    },
+                    usgs: {
+                        base: 'https://earthquake.usgs.gov',
+                        endpoints: {
+                            earthquakes: '/fdsnws/event/1/query'
+                        }
+                    }
+                };
+
+                // Initialize
+                this.init();
+            }
+
+            init() {
+                this.setupThreeJS();
+                this.setupLighting();
+                this.setupControls();
+                this.setupEventListeners();
+                this.loadInitialData();
+                this.animate();
+            }
+
+            setupThreeJS() {
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.FogExp2(0x000000, 0.00000001);
+
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(
+                    60,
+                    window.innerWidth / window.innerHeight,
+                    0.001,
+                    1e27
+                );
+                this.camera.position.set(0, 0, 100);
+
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    logarithmicDepthBuffer: true // Important for huge scale differences
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                document.getElementById('universe-container').appendChild(this.renderer.domElement);
+
+                // Controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.screenSpacePanning = true;
+                this.controls.minDistance = 0.1;
+                this.controls.maxDistance = 1e27;
+                
+                // Add raycaster for object selection
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+            }
+
+            setupLighting() {
+                // Dynamic lighting based on scale
+                this.ambientLight = new THREE.AmbientLight(0x222222);
+                this.scene.add(this.ambientLight);
+
+                this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                this.directionalLight.position.set(1, 1, 1);
+                this.scene.add(this.directionalLight);
+            }
+
+            setupControls() {
+                // Enhanced controls with scale awareness
+                this.controls.addEventListener('change', () => {
+                    this.updateScale();
+                    this.loadDataForCurrentView();
+                });
+            }
+
+            setupEventListeners() {
+                // Window resize
+                window.addEventListener('resize', () => this.onWindowResize());
+                
+                // Mouse events
+                window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                window.addEventListener('click', (e) => this.onMouseClick(e));
+                window.addEventListener('wheel', (e) => this.onWheel(e));
+
+                // Search
+                const searchInput = document.getElementById('search-input');
+                searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+                searchInput.addEventListener('focus', () => this.showSearchSuggestions());
+                
+                // Keyboard shortcuts
+                window.addEventListener('keydown', (e) => this.handleKeyboard(e));
+            }
+
+            updateScale() {
+                // Calculate current scale based on camera distance
+                const distance = this.camera.position.length();
+                let currentScaleName = 'universe';
+                
+                // Find appropriate scale
+                for (const [key, value] of Object.entries(this.scales)) {
+                    if (distance < value.scale) {
+                        currentScaleName = key;
+                    }
+                }
+                
+                // Update UI
+                const scaleInfo = this.scales[currentScaleName];
+                document.getElementById('current-scale').textContent = scaleInfo.name;
+                document.getElementById('coords').textContent = 
+                    `Scale: ${distance.toExponential(2)} | Position: [${
+                        Math.round(this.camera.position.x)}, ${
+                        Math.round(this.camera.position.y)}, ${
+                        Math.round(this.camera.position.z)}]`;
+                
+                // Update scene based on scale
+                this.updateSceneForScale(currentScaleName);
+            }
+
+            updateSceneForScale(scaleName) {
+                // Adjust rendering based on scale
+                switch(scaleName) {
+                    case 'universe':
+                    case 'supercluster':
+                        this.renderGalaxies();
+                        break;
+                    case 'galaxy':
+                    case 'stellar_neighborhood':
+                        this.renderStars();
+                        break;
+                    case 'solar_system':
+                    case 'planetary':
+                        this.renderPlanets();
+                        break;
+                    case 'earth':
+                    case 'country':
+                    case 'city':
+                        this.renderEarthDetails();
+                        break;
+                    case 'street':
+                    case 'building':
+                        this.renderStreetLevel();
+                        break;
+                }
+            }
+
+            async loadDataForCurrentView() {
+                // Dynamic data loading based on what's in view
+                const frustum = new THREE.Frustum();
+                const matrix = new THREE.Matrix4().multiplyMatrices(
+                    this.camera.projectionMatrix,
+                    this.camera.matrixWorldInverse
+                );
+                frustum.setFromProjectionMatrix(matrix);
+                
+                // Determine what data to load
+                const visibleBounds = this.getVisibleBounds();
+                const scale = this.getCurrentScale();
+                
+                // Load appropriate data
+                if (scale === 'galaxy' && !this.dataLayers.has('galaxy_data')) {
+                    await this.fetchGalaxyData(visibleBounds);
+                } else if (scale === 'solar_system' && !this.dataLayers.has('solar_data')) {
+                    await this.fetchSolarSystemData();
+                } else if (scale === 'earth' && !this.dataLayers.has('earth_data')) {
+                    await this.fetchEarthData(visibleBounds);
+                }
+            }
+
+            async fetchGalaxyData(bounds) {
+                this.setDataSourceStatus('esa', 'loading');
+                
+                try {
+                    // Simulated API call - in production, would query ESA Gaia
+                    const galaxyData = await this.simulateAPICall('galaxy', {
+                        ra_min: bounds.minRA,
+                        ra_max: bounds.maxRA,
+                        dec_min: bounds.minDec,
+                        dec_max: bounds.maxDec
+                    });
+                    
+                    this.dataLayers.set('galaxy_data', galaxyData);
+                    this.renderGalaxyData(galaxyData);
+                    this.setDataSourceStatus('esa', 'active');
+                } catch (error) {
+                    console.error('Error fetching galaxy data:', error);
+                    this.setDataSourceStatus('esa', 'error');
+                }
+            }
+
+            async fetchSolarSystemData() {
+                this.setDataSourceStatus('nasa', 'loading');
+                
+                try {
+                    // Fetch real solar system data
+                    const solarData = await this.simulateAPICall('solar_system', {});
+                    
+                    this.dataLayers.set('solar_data', solarData);
+                    this.renderSolarSystem(solarData);
+                    this.setDataSourceStatus('nasa', 'active');
+                    
+                    // Update info panel
+                    document.getElementById('current-data').innerHTML = 
+                        `Loaded ${solarData.planets.length} planets, ${solarData.moons.length} moons`;
+                } catch (error) {
+                    console.error('Error fetching solar system data:', error);
+                    this.setDataSourceStatus('nasa', 'error');
+                }
+            }
+
+            async fetchEarthData(bounds) {
+                this.setDataSourceStatus('osm', 'loading');
+                
+                try {
+                    // Fetch map data based on view
+                    const earthData = await this.simulateAPICall('earth', {
+                        lat_min: bounds.minLat,
+                        lat_max: bounds.maxLat,
+                        lon_min: bounds.minLon,
+                        lon_max: bounds.maxLon,
+                        zoom: this.getZoomLevel()
+                    });
+                    
+                    this.dataLayers.set('earth_data', earthData);
+                    this.renderEarthData(earthData);
+                    this.setDataSourceStatus('osm', 'active');
+                } catch (error) {
+                    console.error('Error fetching Earth data:', error);
+                    this.setDataSourceStatus('osm', 'error');
+                }
+            }
+
+            // Rendering methods for different scales
+            renderGalaxies() {
+                // Clear previous scale objects
+                this.clearScaleObjects(['planets', 'cities']);
+                
+                // Generate or load galaxy data
+                if (!this.objects.galaxies.length) {
+                    for (let i = 0; i < 1000; i++) {
+                        const geometry = new THREE.SphereGeometry(
+                            Math.random() * 1e20 + 1e19,
+                            8,
+                            6
+                        );
+                        const material = new THREE.MeshBasicMaterial({
+                            color: new THREE.Color().setHSL(Math.random(), 0.5, 0.5),
+                            transparent: true,
+                            opacity: 0.8
+                        });
+                        const galaxy = new THREE.Mesh(geometry, material);
+                        
+                        // Random position in universe
+                        galaxy.position.set(
+                            (Math.random() - 0.5) * 1e24,
+                            (Math.random() - 0.5) * 1e24,
+                            (Math.random() - 0.5) * 1e24
+                        );
+                        
+                        galaxy.userData = {
+                            type: 'galaxy',
+                            name: `Galaxy-${i}`,
+                            stars: Math.floor(Math.random() * 400 + 100) + ' billion',
+                            distance: (galaxy.position.length() / 9.461e15).toFixed(2) + ' light years'
+                        };
+                        
+                        this.scene.add(galaxy);
+                        this.objects.galaxies.push(galaxy);
+                    }
+                }
+            }
+
+            renderStars() {
+                // Clear non-relevant objects
+                this.clearScaleObjects(['galaxies', 'cities']);
+                
+                if (!this.objects.stars.length) {
+                    // Create star field
+                    const starGeometry = new THREE.BufferGeometry();
+                    const starCount = 50000;
+                    const positions = new Float32Array(starCount * 3);
+                    const colors = new Float32Array(starCount * 3);
+                    
+                    for (let i = 0; i < starCount * 3; i += 3) {
+                        // Position
+                        positions[i] = (Math.random() - 0.5) * 1e18;
+                        positions[i + 1] = (Math.random() - 0.5) * 1e18;
+                        positions[i + 2] = (Math.random() - 0.5) * 1e18;
+                        
+                        // Color based on star type
+                        const starType = Math.random();
+                        if (starType < 0.7) { // Red dwarf
+                            colors[i] = 1;
+                            colors[i + 1] = 0.5;
+                            colors[i + 2] = 0.3;
+                        } else if (starType < 0.9) { // Sun-like
+                            colors[i] = 1;
+                            colors[i + 1] = 1;
+                            colors[i + 2] = 0.8;
+                        } else { // Blue giant
+                            colors[i] = 0.7;
+                            colors[i + 1] = 0.8;
+                            colors[i + 2] = 1;
+                        }
+                    }
+                    
+                    starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                    starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                    
+                    const starMaterial = new THREE.PointsMaterial({
+                        size: 1e16,
+                        vertexColors: true,
+                        sizeAttenuation: true
+                    });
+                    
+                    const stars = new THREE.Points(starGeometry, starMaterial);
+                    this.scene.add(stars);
+                    this.objects.stars.push(stars);
+                }
+            }
+
+            renderPlanets() {
+                this.clearScaleObjects(['galaxies', 'stars', 'cities']);
+                
+                if (!this.objects.planets.length) {
+                    // Solar system planets
+                    const planets = [
+                        { name: 'Mercury', radius: 2439.7e3, distance: 57.9e9, color: 0x888888 },
+                        { name: 'Venus', radius: 6051.8e3, distance: 108.2e9, color: 0xffc649 },
+                        { name: 'Earth', radius: 6371e3, distance: 149.6e9, color: 0x2e7fff },
+                        { name: 'Mars', radius: 3389.5e3, distance: 227.9e9, color: 0xff4500 },
+                        { name: 'Jupiter', radius: 69911e3, distance: 778.5e9, color: 0xc88b3a },
+                        { name: 'Saturn', radius: 58232e3, distance: 1432e9, color: 0xfad5a5 },
+                        { name: 'Uranus', radius: 25362e3, distance: 2867e9, color: 0x4fd0e7 },
+                        { name: 'Neptune', radius: 24622e3, distance: 4515e9, color: 0x3f54ba }
+                    ];
+                    
+                    // Add Sun
+                    const sunGeometry = new THREE.SphereGeometry(695700e3, 32, 32);
+                    const sunMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xffff00,
+                        emissive: 0xffff00
+                    });
+                    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                    sun.userData = { type: 'star', name: 'Sun' };
+                    this.scene.add(sun);
+                    
+                    // Add planets
+                    planets.forEach(planetData => {
+                        const geometry = new THREE.SphereGeometry(planetData.radius, 32, 32);
+                        const material = new THREE.MeshPhongMaterial({ 
+                            color: planetData.color 
+                        });
+                        const planet = new THREE.Mesh(geometry, material);
+                        
+                        planet.position.x = planetData.distance;
+                        planet.userData = {
+                            type: 'planet',
+                            name: planetData.name,
+                            radius: planetData.radius,
+                            distance: planetData.distance
+                        };
+                        
+                        this.scene.add(planet);
+                        this.objects.planets.push(planet);
+                    });
+                }
+            }
+
+            renderEarthDetails() {
+                // Load Earth texture and topology
+                if (!this.dataLayers.has('earth_render')) {
+                    const earthGeometry = new THREE.SphereGeometry(6371e3, 64, 64);
+                    const earthMaterial = new THREE.MeshPhongMaterial({
+                        color: 0x2e7fff,
+                        specular: 0x111111,
+                        shininess: 10
+                    });
+                    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+                    
+                    // Add atmosphere
+                    const atmosphereGeometry = new THREE.SphereGeometry(6471e3, 64, 64);
+                    const atmosphereMaterial = new THREE.MeshPhongMaterial({
+                        color: 0x0080ff,
+                        transparent: true,
+                        opacity: 0.1,
+                        side: THREE.BackSide
+                    });
+                    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+                    earth.add(atmosphere);
+                    
+                    // Add city lights (dots for major cities)
+                    this.addCityLights(earth);
+                    
+                    this.scene.add(earth);
+                    this.dataLayers.set('earth_render', earth);
+                }
+            }
+
+            addCityLights(earth) {
+                // Major cities with coordinates
+                const cities = [
+                    { name: 'New York', lat: 40.7128, lon: -74.0060, population: 8.3 },
+                    { name: 'London', lat: 51.5074, lon: -0.1278, population: 9.0 },
+                    { name: 'Tokyo', lat: 35.6762, lon: 139.6503, population: 13.9 },
+                    { name: 'Paris', lat: 48.8566, lon: 2.3522, population: 2.1 },
+                    { name: 'Beijing', lat: 39.9042, lon: 116.4074, population: 21.5 },
+                    { name: 'Mumbai', lat: 19.0760, lon: 72.8777, population: 20.4 },
+                    { name: 'São Paulo', lat: -23.5505, lon: -46.6333, population: 12.3 },
+                    { name: 'Cairo', lat: 30.0444, lon: 31.2357, population: 20.0 }
+                ];
+                
+                cities.forEach(city => {
+                    const phi = (90 - city.lat) * Math.PI / 180;
+                    const theta = (city.lon + 180) * Math.PI / 180;
+                    
+                    const x = -6371e3 * Math.sin(phi) * Math.cos(theta);
+                    const z = 6371e3 * Math.sin(phi) * Math.sin(theta);
+                    const y = 6371e3 * Math.cos(phi);
+                    
+                    const cityLight = new THREE.Mesh(
+                        new THREE.SphereGeometry(city.population * 1e3, 8, 8),
+                        new THREE.MeshBasicMaterial({ 
+                            color: 0xffaa00,
+                            emissive: 0xffaa00
+                        })
+                    );
+                    
+                    cityLight.position.set(x, y, z);
+                    cityLight.userData = {
+                        type: 'city',
+                        name: city.name,
+                        population: city.population + ' million',
+                        coordinates: `${city.lat}°, ${city.lon}°`
+                    };
+                    
+                    earth.add(cityLight);
+                    this.objects.cities.push(cityLight);
+                });
+            }
+
+            renderStreetLevel() {
+                // Street-level detail with buildings
+                this.clearScaleObjects(['galaxies', 'stars', 'planets']);
+                
+                if (!this.objects.buildings.length) {
+                    // Generate procedural city blocks
+                    for (let x = -500; x < 500; x += 50) {
+                        for (let z = -500; z < 500; z += 50) {
+                            const height = Math.random() * 100 + 20;
+                            const building = new THREE.Mesh(
+                                new THREE.BoxGeometry(30, height, 30),
+                                new THREE.MeshPhongMaterial({
+                                    color: new THREE.Color().setHSL(0.6, 0.1, 0.5)
+                                })
+                            );
+                            
+                            building.position.set(x, height / 2, z);
+                            building.userData = {
+                                type: 'building',
+                                height: height + ' meters',
+                                address: `Building at ${x}, ${z}`
+                            };
+                            
+                            this.scene.add(building);
+                            this.objects.buildings.push(building);
+                        }
+                    }
+                    
+                    // Add ground plane
+                    const ground = new THREE.Mesh(
+                        new THREE.PlaneGeometry(2000, 2000),
+                        new THREE.MeshPhongMaterial({ color: 0x333333 })
+                    );
+                    ground.rotation.x = -Math.PI / 2;
+                    this.scene.add(ground);
+                }
+            }
+
+            clearScaleObjects(types) {
+                types.forEach(type => {
+                    this.objects[type].forEach(obj => {
+                        this.scene.remove(obj);
+                        if (obj.geometry) obj.geometry.dispose();
+                        if (obj.material) obj.material.dispose();
+                    });
+                    this.objects[type] = [];
+                });
+            }
+
+            async handleSearch(query) {
+                if (!query) {
+                    document.getElementById('search-suggestions').style.display = 'none';
+                    return;
+                }
+                
+                // Show loading
+                const suggestions = document.getElementById('search-suggestions');
+                suggestions.innerHTML = '<div class="search-suggestion">Searching...</div>';
+                suggestions.style.display = 'block';
+                
+                // Search across different scales
+                const results = await this.searchAllScales(query);
+                
+                // Display results
+                suggestions.innerHTML = '';
+                results.forEach(result => {
+                    const div = document.createElement('div');
+                    div.className = 'search-suggestion';
+                    div.innerHTML = `
+                        <div class="search-category">${result.category}</div>
+                        <div class="search-name">${result.name}</div>
+                    `;
+                    div.onclick = () => this.navigateTo(result);
+                    suggestions.appendChild(div);
+                });
+            }
+
+            async searchAllScales(query) {
+                const results = [];
+                
+                // Search galaxies
+                if (query.toLowerCase().includes('galaxy')) {
+                    results.push({
+                        category: 'Galaxy',
+                        name: 'Andromeda Galaxy',
+                        scale: 'galaxy',
+                        position: { x: 2.5e22, y: 0, z: 0 }
+                    });
+                }
+                
+                // Search planets
+                const planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+                planets.forEach(planet => {
+                    if (planet.toLowerCase().includes(query.toLowerCase())) {
+                        results.push({
+                            category: 'Planet',
+                            name: planet,
+                            scale: 'planetary',
+                            object: this.objects.planets.find(p => p.userData.name === planet)
+                        });
+                    }
+                });
+                
+                // Search cities
+                if (query.length > 2) {
+                    // Would normally query OpenStreetMap Nominatim API
+                    const cities = ['New York', 'London', 'Tokyo', 'Paris'];
+                    cities.forEach(city => {
+                        if (city.toLowerCase().includes(query.toLowerCase())) {
+                            results.push({
+                                category: 'City',
+                                name: city,
+                                scale: 'city',
+                                coordinates: this.getCityCoordinates(city)
+                            });
+                        }
+                    });
+                }
+                
+                // GPS coordinates pattern
+                const gpsPattern = /^[-]?\d+\.?\d*,\s*[-]?\d+\.?\d*$/;
+                if (gpsPattern.test(query)) {
+                    const [lat, lon] = query.split(',').map(n => parseFloat(n.trim()));
+                    results.push({
+                        category: 'GPS Coordinates',
+                        name: `${lat}, ${lon}`,
+                        scale: 'street',
+                        coordinates: { lat, lon }
+                    });
+                }
+                
+                return results.slice(0, 10); // Limit results
+            }
+
+            navigateTo(target) {
+                // Hide suggestions
+                document.getElementById('search-suggestions').style.display = 'none';
+                
+                // Animate to target
+                if (target.scale) {
+                    this.zoomToScale(target.scale);
+                }
+                
+                if (target.object) {
+                    this.focusOnObject(target.object);
+                } else if (target.position) {
+                    this.animateToPosition(target.position);
+                } else if (target.coordinates) {
+                    this.navigateToCoordinates(target.coordinates);
+                }
+                
+                // Update info panel
+                document.getElementById('object-name').textContent = target.name;
+                document.getElementById('current-location').textContent = target.name;
+            }
+
+            navigateToCoordinates(coords) {
+                // Convert GPS to 3D position
+                const earthRadius = 6371e3;
+                const phi = (90 - coords.lat) * Math.PI / 180;
+                const theta = (coords.lon + 180) * Math.PI / 180;
+                
+                const x = -earthRadius * Math.sin(phi) * Math.cos(theta);
+                const z = earthRadius * Math.sin(phi) * Math.sin(theta);
+                const y = earthRadius * Math.cos(phi);
+                
+                // Zoom to street level at coordinates
+                this.animateToPosition({ x, y, z });
+                this.zoomToScale('street');
+                
+                // Fetch local data
+                this.fetchLocalData(coords);
+            }
+
+            async fetchLocalData(coords) {
+                // Fetch local information (weather, places, etc.)
+                this.setDataSourceStatus('weather', 'loading');
+                
+                try {
+                    const localData = await this.simulateAPICall('local', coords);
+                    
+                    document.getElementById('current-data').innerHTML = `
+                        Location: ${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)}<br>
+                        Weather: ${localData.weather}<br>
+                        Temperature: ${localData.temperature}°C<br>
+                        Nearby: ${localData.nearby.join(', ')}
+                    `;
+                    
+                    this.setDataSourceStatus('weather', 'active');
+                } catch (error) {
+                    this.setDataSourceStatus('weather', 'error');
+                }
+            }
+
+            getCityCoordinates(cityName) {
+                const cities = {
+                    'New York': { lat: 40.7128, lon: -74.0060 },
+                    'London': { lat: 51.5074, lon: -0.1278 },
+                    'Tokyo': { lat: 35.6762, lon: 139.6503 },
+                    'Paris': { lat: 48.8566, lon: 2.3522 }
+                };
+                return cities[cityName] || { lat: 0, lon: 0 };
+            }
+
+            focusOnObject(object) {
+                if (!object) return;
+                
+                const box = new THREE.Box3().setFromObject(object);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = this.camera.fov * (Math.PI / 180);
+                const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 2;
+                
+                this.animateToPosition({
+                    x: center.x,
+                    y: center.y,
+                    z: center.z + cameraZ
+                });
+                
+                this.controls.target = center;
+            }
+
+            animateToPosition(targetPos) {
+                // Smooth camera animation
+                const startPos = this.camera.position.clone();
+                const duration = 2000;
+                const startTime = Date.now();
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Easing
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    
+                    this.camera.position.lerpVectors(startPos, new THREE.Vector3(
+                        targetPos.x,
+                        targetPos.y,
+                        targetPos.z
+                    ), eased);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                animate();
+            }
+
+            zoomToScale(scaleName) {
+                const scale = this.scales[scaleName];
+                if (!scale) return;
+                
+                // Calculate target camera distance for scale
+                const targetDistance = scale.scale * 0.1;
+                
+                this.animateToPosition({
+                    x: 0,
+                    y: 0,
+                    z: targetDistance
+                });
+                
+                this.controls.target.set(0, 0, 0);
+                
+                // Update UI
+                document.getElementById('current-scale').textContent = scale.name;
+                
+                // Load appropriate data
+                setTimeout(() => {
+                    this.updateSceneForScale(scaleName);
+                }, 1000);
+            }
+
+            getCurrentScale() {
+                const distance = this.camera.position.length();
+                
+                for (const [key, value] of Object.entries(this.scales)) {
+                    if (distance < value.scale * 10) {
+                        return key;
+                    }
+                }
+                return 'universe';
+            }
+
+            getZoomLevel() {
+                const distance = this.camera.position.length();
+                return Math.max(1, Math.min(20, Math.log10(1e8 / distance)));
+            }
+
+            getVisibleBounds() {
+                // Calculate visible area bounds
+                const frustum = new THREE.Frustum();
+                const matrix = new THREE.Matrix4().multiplyMatrices(
+                    this.camera.projectionMatrix,
+                    this.camera.matrixWorldInverse
+                );
+                frustum.setFromProjectionMatrix(matrix);
+                
+                // Convert to appropriate coordinate system based on scale
+                const scale = this.getCurrentScale();
+                
+                if (scale === 'earth' || scale === 'city' || scale === 'street') {
+                    // GPS coordinates
+                    return {
+                        minLat: -90,
+                        maxLat: 90,
+                        minLon: -180,
+                        maxLon: 180
+                    };
+                } else {
+                    // Celestial coordinates
+                    return {
+                        minRA: 0,
+                        maxRA: 360,
+                        minDec: -90,
+                        maxDec: 90
+                    };
+                }
+            }
+
+            setDataSourceStatus(source, status) {
+                const element = document.getElementById(`${source}-status`);
+                if (element) {
+                    element.className = `source-indicator ${status}`;
+                }
+            }
+
+            async simulateAPICall(type, params) {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Return mock data based on type
+                switch(type) {
+                    case 'galaxy':
+                        return {
+                            galaxies: Array(100).fill(0).map((_, i) => ({
+                                id: `GAL-${i}`,
+                                ra: params.ra_min + Math.random() * (params.ra_max - params.ra_min),
+                                dec: params.dec_min + Math.random() * (params.dec_max - params.dec_min),
+                                redshift: Math.random() * 2,
+                                magnitude: Math.random() * 5 + 10
+                            }))
+                        };
+                    
+                    case 'solar_system':
+                        return {
+                            planets: [
+                                { name: 'Mercury', radius: 2439.7, distance: 57.9e6 },
+                                { name: 'Venus', radius: 6051.8, distance: 108.2e6 },
+                                { name: 'Earth', radius: 6371, distance: 149.6e6 },
+                                { name: 'Mars', radius: 3389.5, distance: 227.9e6 }
+                            ],
+                            moons: [
+                                { name: 'Moon', parent: 'Earth', radius: 1737 },
+                                { name: 'Phobos', parent: 'Mars', radius: 11 },
+                                { name: 'Deimos', parent: 'Mars', radius: 6 }
+                            ]
+                        };
+                    
+                    case 'earth':
+                        return {
+                            features: ['continents', 'oceans', 'mountains'],
+                            cities: ['New York', 'London', 'Tokyo'],
+                            elevation: 'SRTM data'
+                        };
+                    
+                    case 'local':
+                        return {
+                            weather: 'Partly cloudy',
+                            temperature: 22,
+                            nearby: ['Restaurants', 'Parks', 'Museums']
+                        };
+                    
+                    default:
+                        return {};
+                }
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            onMouseMove(event) {
+                this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
+
+            onMouseClick(event) {
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                
+                const allObjects = [
+                    ...this.objects.galaxies,
+                    ...this.objects.stars,
+                    ...this.objects.planets,
+                    ...this.objects.cities,
+                    ...this.objects.buildings
+                ];
+                
+                const intersects = this.raycaster.intersectObjects(allObjects);
+                
+                if (intersects.length > 0) {
+                    const object = intersects[0].object;
+                    this.selectObject(object);
+                }
+            }
+
+            selectObject(object) {
+                if (!object.userData) return;
+                
+                // Update info panel
+                document.getElementById('object-name').textContent = 
+                    object.userData.name || 'Unknown Object';
+                
+                let infoHTML = '';
+                for (const [key, value] of Object.entries(object.userData)) {
+                    if (key !== 'type' && key !== 'name') {
+                        infoHTML += `
+                            <div class="info-section">
+                                <div class="info-label">${key}</div>
+                                <div class="info-value">${value}</div>
+                            </div>
+                        `;
+                    }
+                }
+                document.getElementById('object-description').innerHTML = infoHTML;
+                
+                // Focus on object
+                this.focusOnObject(object);
+            }
+
+            onWheel(event) {
+                // Update scale indicator in real-time
+                requestAnimationFrame(() => this.updateScale());
+            }
+
+            handleKeyboard(event) {
+                switch(event.key) {
+                    case '1': this.zoomToScale('universe'); break;
+                    case '2': this.zoomToScale('galaxy'); break;
+                    case '3': this.zoomToScale('solar_system'); break;
+                    case '4': this.zoomToScale('earth'); break;
+                    case '5': this.zoomToScale('city'); break;
+                    case '6': this.zoomToScale('street'); break;
+                    case 'Escape': 
+                        document.getElementById('search-suggestions').style.display = 'none';
+                        break;
+                }
+            }
+
+            showSearchSuggestions() {
+                const suggestions = document.getElementById('search-suggestions');
+                suggestions.innerHTML = `
+                    <div class="search-suggestion">
+                        <div class="search-category">Try searching for:</div>
+                        <div class="search-name">Galaxies, planets, cities, or GPS coordinates</div>
+                    </div>
+                `;
+                suggestions.style.display = 'block';
+            }
+
+            loadInitialData() {
+                // Start with universe view
+                this.renderGalaxies();
+                this.updateScale();
+                
+                // Preload some data
+                setTimeout(() => this.loadDataForCurrentView(), 1000);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                // Update controls
+                this.controls.update();
+                
+                // Rotate objects based on scale
+                const scale = this.getCurrentScale();
+                if (scale === 'solar_system' || scale === 'planetary') {
+                    this.objects.planets.forEach(planet => {
+                        planet.rotation.y += 0.001;
+                    });
+                }
+                
+                if (scale === 'earth') {
+                    const earth = this.dataLayers.get('earth_render');
+                    if (earth) {
+                        earth.rotation.y += 0.0005;
+                    }
+                }
+                
+                // Update minimap
+                this.updateMinimap();
+                
+                // Render
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            updateMinimap() {
+                const canvas = document.getElementById('minimap-canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Clear
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(0, 0, 200, 200);
+                
+                // Draw scale indicator
+                const scale = this.getCurrentScale();
+                const scaleIndex = Object.keys(this.scales).indexOf(scale);
+                const scaleCount = Object.keys(this.scales).length;
+                
+                ctx.strokeStyle = '#667eea';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(100, 100, 10 + (scaleIndex / scaleCount) * 80, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Draw position indicator
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(100, 100, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Initialize the explorer
+        let universeExplorer;
+        window.addEventListener('DOMContentLoaded', () => {
+            universeExplorer = new UniverseExplorer();
+        });
+    </script>
+</body>
+</html>
